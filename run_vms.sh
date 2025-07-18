@@ -8,7 +8,7 @@ fi
 
 RAW_IMAGE="$1"               # your rootfs.raw
 CORES_PER_VM="$2"
-RESULTS_DIR="./results_$(CORES_PER_VM)_cores"
+RESULTS_DIR="./results_${CORES_PER_VM}_cores"
 VM_KERNEL="bzImage" # CHANGE this to your kernel path
 MEM_MB=1024
 
@@ -28,7 +28,9 @@ for ((i=0; i<NUM_CORES; i+=CORES_PER_VM)); do
     fi
 done
 
-echo "[+] Launching $NUM_CORES VMs…"
+NUM_VMS=$(( NUM_CORES / CORES_PER_VM ))
+
+echo "[+] Launching $NUM_VMS VMs…"
 
 PIDS=()
 
