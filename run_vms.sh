@@ -58,5 +58,26 @@ for pid in "${PIDS[@]}"; do
     wait "$pid"
 done
 
+echo "[+] Running one VM alone..."
+VM_DISK="$RESULTS_DIR/disk_alone_core_${CORES_PER_VM}.raw"
+LOG_FILE="$RESULTS_DIR/vm-alone-core-${CORES_PER_VM}.log"
+cp --reflink=auto "$RAW_IMAGE" "$VM_DISK"
+KVM_PIN_CORE=1 \
+lkvm run \
+    --name="vm-alone-core-${CORES_PER_VM}" \
+    --cpus "$CORES_PER_VM" \
+    --mem $MEM_MB \
+    --disk "$VM_DISK" \
+    --console virtio \
+    --network virtio \
+    --kernel "$VM_KERNEL" \
+    --params "root=/dev/vda rw console=ttyS0" \
+    --console=ttyS0 > "$LOG_FILE" 2>&1 &
+pidalone=($!)
+
+echo "[+] VM alone launched. Waiting for it to finish…"
+
+wait "$pidalone"
+
 echo "[✓] All VMs have exited. Results and logs are in: $RESULTS_DIR/"
 
