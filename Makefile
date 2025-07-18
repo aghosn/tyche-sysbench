@@ -5,7 +5,7 @@ setup:
 
 run:
 	sudo rm -rf results/
-	sudo ./run_vms.sh rootfs
+	sudo ./run_vms.sh rootfs.raw
 	./run_host.sh
 
 process:
