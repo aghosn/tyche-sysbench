@@ -1,0 +1,6 @@
+rootfs/
+rootfs.raw
+results/
+sysbench_cpu_*
+sysbench_mem_*
+host_sysbench_*
