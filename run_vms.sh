@@ -1,8 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <rootfs.raw> <nb cores per vm>"
+    exit 1
+fi
+
 RAW_IMAGE="$1"               # your rootfs.raw
-RESULTS_DIR="./results"
+CORES_PER_VM="$2"
+RESULTS_DIR="./results_$(CORES_PER_VM)_cores"
 VM_KERNEL="bzImage" # CHANGE this to your kernel path
 MEM_MB=1024
 
@@ -14,7 +20,7 @@ echo "[+] Detected $NUM_CORES cores"
 mkdir -p "$RESULTS_DIR"
 
 # make a copy of the rawfs for each core
-for ((i=0; i<NUM_CORES; i++)); do
+for ((i=0; i<NUM_CORES; i+=CORES_PER_VM)); do
     VM_DISK="$RESULTS_DIR/disk_core${i}.raw"
     if [[ ! -f "$VM_DISK" ]]; then
         echo "[+] Creating copy of $RAW_IMAGE → $VM_DISK"
@@ -26,14 +32,14 @@ echo "[+] Launching $NUM_CORES VMs…"
 
 PIDS=()
 
-for ((i=0; i<NUM_CORES; i++)); do
+for ((i=0; i<NUM_CORES; i+=CORES_PER_VM)); do
     VM_DISK="$RESULTS_DIR/disk_core${i}.raw"
     LOG_FILE="$RESULTS_DIR/vm-core-$i.log"
     echo "[+] Starting VM $i on core $i"
     KVM_PIN_CORE=$i \
     lkvm run \
         --name="vm-core-$i" \
-        --cpus 1 \
+        --cpus "$CORES_PER_VM" \
         --mem $MEM_MB \
         --disk "$VM_DISK" \
         --console virtio \

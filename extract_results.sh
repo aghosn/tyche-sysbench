@@ -1,10 +1,16 @@
 #!/bin/bash
 set -euo pipefail
 
-DISK_DIR=./results
+if [[ $# -ne 2 ]]; then
+    echo "Usage: $0 <nb_cores> <results folder>"
+    exit 1
+fi
+
+CORE="$1"
+DISK_DIR="$2"
 MOUNT_DIR=/tmp/mount/vm-disk
-CPU_OUT="sysbench_cpu_$(date +%Y%m%d_%H%M%S).txt"
-MEM_OUT="sysbench_mem_$(date +%Y%m%d_%H%M%S).txt"
+CPU_OUT="sysbench_cpu_$CORE_$(date +%Y%m%d_%H%M%S).txt"
+MEM_OUT="sysbench_mem_$CORE_$(date +%Y%m%d_%H%M%S).txt"
 
 CPU_FILE="root/sysbench-results/result_cpu.txt"
 MEM_FILE="root/sysbench-results/result_mem.txt"
