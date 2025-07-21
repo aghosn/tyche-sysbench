@@ -1,8 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-if [[ $# -ne 2 ]]; then
-    echo "Usage: $0 <rootfs.raw> <nb cores per vm>"
+if [[ $# -ne 3 ]]; then
+    echo "Usage: $0 <rootfs.raw> <nb cores per vm> <lkvm|qemu>"
     exit 1
 fi
 
