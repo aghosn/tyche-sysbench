@@ -11,6 +11,7 @@ CORES_PER_VM="$2"
 RESULTS_DIR="./results_${CORES_PER_VM}_cores"
 VM_KERNEL="bzImage" # CHANGE this to your kernel path
 MEM_MB=1024
+HYPERVISOR="${HYPERVISOR:-lkvm}"  # default to lkvm if not set
 
 # Detect number of available CPU cores
 NUM_CORES=$(nproc)
