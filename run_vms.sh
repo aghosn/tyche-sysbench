@@ -70,7 +70,6 @@ for ((i=0; i<NUM_CORES; i+=CORES_PER_VM)); do
             -enable-kvm \
             -name "vm-core-$i" \
             -smp "$CORES_PER_VM" \
-            --cpu-affinity "$cpu_affinity_list" \
             -m "$MEM_MB" \
             -drive file="$VM_DISK",if=virtio,format=raw \
             -nographic \
