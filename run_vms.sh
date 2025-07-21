@@ -52,7 +52,8 @@ for ((i=0; i<NUM_CORES; i+=CORES_PER_VM)); do
             --params "root=/dev/vda rw console=ttyS0" \
             --console=ttyS0 > "$LOG_FILE" 2>&1 &
     elif [[ "$HYPERVISOR" == "qemu" ]]; then
-        taskset -c $i \
+        host_cores="$i-$((i + CORES_PER_VM - 1))"
+        taskset -c "$host_cores" \
         qemu-system-x86_64 \
             -enable-kvm \
             -name "vm-core-$i" \
