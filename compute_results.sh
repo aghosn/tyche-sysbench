@@ -28,17 +28,6 @@ echo "[Host] MEM MiB/sec:   $host_mem_rate"
 echo ""
 printf "%-10s %-30s %-30s\n" "VM" "CPU (VM / Host, %)" "MEM (VM / Host, %)"
 
-# extract VM/disk names from VMS_CPU_FILE
-mapfile -t vm_names < <(
-  awk -F'=' '
-    /^=== Result from/ {
-      # strip spaces around 4th field
-      name=$4
-      gsub(/^[ \t]+|[ \t]+$/, "", name)
-      print name
-    }' "$VMS_CPU_FILE"
-)
-
 # read all VM CPU results
 mapfile -t vm_cpu_eps_list < <(awk '/events per second/ {print $4}' "$VMS_CPU_FILE")
 
@@ -58,15 +47,14 @@ mapfile -t vm_mem_rate_list < <(
 num_vms=${#vm_cpu_eps_list[@]}
 
 for ((i=0; i<num_vms; i++)); do
-    vm_name="${vm_names[$i]}"
     vm_cpu_eps="${vm_cpu_eps_list[$i]}"
     vm_mem_rate="${vm_mem_rate_list[$i]}"
 
     cpu_ratio=$(awk -v h="$host_cpu_eps" -v v="$vm_cpu_eps" 'BEGIN {printf "%.1f%%", (v/h)*100}')
     mem_ratio=$(awk -v h="$host_mem_rate" -v v="$vm_mem_rate" 'BEGIN {printf "%.1f%%", (v/h)*100}')
 
-    printf "%-10s %-30s %-30s\n" \
-        "$vm_name" \
+    printf "vm%-7d %-30s %-30s\n" \
+        "$i" \
         "$(printf "%.2f / %.2f, %s" "$vm_cpu_eps" "$host_cpu_eps" "$cpu_ratio")" \
         "$(printf "%.2f / %.2f, %s" "$vm_mem_rate" "$host_mem_rate" "$mem_ratio")"
 done
