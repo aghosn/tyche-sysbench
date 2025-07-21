@@ -11,7 +11,7 @@ CORES_PER_VM="$2"
 RESULTS_DIR="./results_${CORES_PER_VM}_cores"
 VM_KERNEL="bzImage" # CHANGE this to your kernel path
 MEM_MB=1024
-HYPERVISOR="${HYPERVISOR:-lkvm}"  # default to lkvm if not set
+HYPERVISOR="$3"
 
 # Detect number of available CPU cores
 NUM_CORES=$(nproc)
@@ -52,12 +52,25 @@ for ((i=0; i<NUM_CORES; i+=CORES_PER_VM)); do
             --params "root=/dev/vda rw console=ttyS0" \
             --console=ttyS0 > "$LOG_FILE" 2>&1 &
     elif [[ "$HYPERVISOR" == "qemu" ]]; then
+        start_core=$i
+        cores=$CORES_PER_VM
+         
+        # Compute the range string (for taskset)
+        core_range="$start_core-$((start_core + cores - 1))"
+        
+        # Expand core_range into a comma-separated list for --cpu-affinity
+        cpu_affinity_list=""
+        for ((c=start_core; c<start_core+cores; c++)); do
+            cpu_affinity_list+="$c,"
+        done
+        cpu_affinity_list="${cpu_affinity_list%,}"
         host_cores="$i-$((i + CORES_PER_VM - 1))"
         taskset -c "$host_cores" \
         qemu-system-x86_64 \
             -enable-kvm \
             -name "vm-core-$i" \
             -smp "$CORES_PER_VM" \
+            --cpu-affinity "$cpu_affinity_list" \
             -m "$MEM_MB" \
             -drive file="$VM_DISK",if=virtio,format=raw \
             -nographic \
