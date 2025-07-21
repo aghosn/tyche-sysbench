@@ -40,7 +40,7 @@ for ((i=0; i<NUM_CORES; i+=CORES_PER_VM)); do
     LOG_FILE="$RESULTS_DIR/vm-core-$i.log"
     echo "[+] Starting VM $i on core $i"
     if [[ "$HYPERVISOR" == "lkvm" ]]; then
-        KVM_PIN_CORE=$i \
+        KVM_PIN_CORES=$i \
         lkvm run \
             --name="vm-core-$i" \
             --cpus "$CORES_PER_VM" \
@@ -94,7 +94,7 @@ echo "[+] Running one VM alone..."
 VM_DISK="$RESULTS_DIR/disk_alone_core_${CORES_PER_VM}.raw"
 LOG_FILE="$RESULTS_DIR/vm-alone-core-${CORES_PER_VM}.log"
 cp --reflink=auto "$RAW_IMAGE" "$VM_DISK"
-KVM_PIN_CORE=1 \
+KVM_PIN_CORES=1 \
 lkvm run \
     --name="vm-alone-core-${CORES_PER_VM}" \
     --cpus "$CORES_PER_VM" \
