@@ -36,6 +36,9 @@ echo "[+] Launching $NUM_VMS VMs…"
 PIDS=()
 
 for ((i=0; i<NUM_CORES; i+=CORES_PER_VM)); do
+    VM_DISK="$RESULTS_DIR/disk_core${i}.raw"
+    LOG_FILE="$RESULTS_DIR/vm-core-$i.log"
+    echo "[+] Starting VM $i on core $i"
     if [[ "$HYPERVISOR" == "lkvm" ]]; then
         KVM_PIN_CORE=$i \
         lkvm run \
