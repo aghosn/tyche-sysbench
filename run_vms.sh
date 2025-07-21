@@ -35,20 +35,35 @@ echo "[+] Launching $NUM_VMS VMs…"
 PIDS=()
 
 for ((i=0; i<NUM_CORES; i+=CORES_PER_VM)); do
-    VM_DISK="$RESULTS_DIR/disk_core${i}.raw"
-    LOG_FILE="$RESULTS_DIR/vm-core-$i.log"
-    echo "[+] Starting VM $i on core $i"
-    KVM_PIN_CORE=$i \
-    lkvm run \
-        --name="vm-core-$i" \
-        --cpus "$CORES_PER_VM" \
-        --mem $MEM_MB \
-        --disk "$VM_DISK" \
-        --console virtio \
-        --network virtio \
-        --kernel "$VM_KERNEL" \
-        --params "root=/dev/vda rw console=ttyS0" \
-        --console=ttyS0 > "$LOG_FILE" 2>&1 &
+    if [[ "$HYPERVISOR" == "lkvm" ]]; then
+        KVM_PIN_CORE=$i \
+        lkvm run \
+            --name="vm-core-$i" \
+            --cpus "$CORES_PER_VM" \
+            --mem "$MEM_MB" \
+            --disk "$VM_DISK" \
+            --console virtio \
+            --network virtio \
+            --kernel "$VM_KERNEL" \
+            --params "root=/dev/vda rw console=ttyS0" \
+            --console=ttyS0 > "$LOG_FILE" 2>&1 &
+    elif [[ "$HYPERVISOR" == "qemu" ]]; then
+        taskset -c $i \
+        qemu-system-x86_64 \
+            -enable-kvm \
+            -name "vm-core-$i" \
+            -smp "$CORES_PER_VM" \
+            -m "$MEM_MB" \
+            -drive file="$VM_DISK",if=virtio,format=raw \
+            -nographic \
+            -kernel "$VM_KERNEL" \
+            -append "root=/dev/vda rw console=ttyS0" \
+            -netdev user,id=net0 \
+            -device virtio-net-pci,netdev=net0 > "$LOG_FILE" 2>&1 &
+    else
+        echo "Unknown hypervisor: $HYPERVISOR"
+        exit 1
+    fi
     PIDS+=($!)
 done
 
