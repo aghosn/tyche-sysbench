@@ -65,7 +65,7 @@ sudo ip link set enp0s3 up
 sudo dhclient enp0s3
 mkdir -p /root/sysbench-results
 sysbench cpu --threads=$(nproc) --time=120 run > /root/sysbench-results/result_cpu.txt
-sysbench memory --time=120 --threads=$(nproc) --memory-access-mode=rnd --memory-oper=write run > /root/sysbench-results/result_mem.txt
+sysbench memory --time=120 --threads=$(nproc) --memory-block-size=128M --memory-access-mode=rnd --memory-oper=write run > /root/sysbench-results/result_mem.txt
 EOF
 sudo chmod +x $ROOTFS_DIR/root/run-sysbench.sh
 
