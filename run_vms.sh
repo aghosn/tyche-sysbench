@@ -139,7 +139,7 @@ echo "[✓] Done running one VM alone."
 echo "[+] Attempting to run two VMs pinned to the same set of cores..."
 
 if (( NUM_CORES >= CORES_PER_VM )); then
-    SHARED_CORES_RANGE="1-$((CORES_PER_VM))"
+    SHARED_CORES_RANGE="0-$((CORES_PER_VM -1))"
 
     VM_DISK1="$RESULTS_DIR/disk_shared_vm1.raw"
     VM_DISK2="$RESULTS_DIR/disk_shared_vm2.raw"
@@ -152,7 +152,7 @@ if (( NUM_CORES >= CORES_PER_VM )); then
     PIDS_SHARED=()
 
     if [[ "$HYPERVISOR" == "lkvm" ]]; then
-        KVM_PIN_CORES=$SHARED_CORES_RANGE \
+        KVM_PIN_CORES=0 \
         lkvm run \
             --name="vm-shared-1" \
             --cpus "$CORES_PER_VM" \
@@ -165,7 +165,7 @@ if (( NUM_CORES >= CORES_PER_VM )); then
             --console=ttyS0 > "$LOG_FILE1" 2>&1 &
         PIDS_SHARED+=($!)
 
-        KVM_PIN_CORES=$SHARED_CORES_RANGE \
+        KVM_PIN_CORES=0 \
         lkvm run \
             --name="vm-shared-2" \
             --cpus "$CORES_PER_VM" \
